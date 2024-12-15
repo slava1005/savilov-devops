@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: diplom-test-site
-        image: savilov1975/diplom-test-site:0.1
+        image: slava1005/diplom-test-site:0.1
         resources:
           requests:
             cpu: "1"
