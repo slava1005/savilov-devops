@@ -547,6 +547,47 @@ helm repo add prometheus-community https://prometheus-community.github.io/helm-c
 ```
 ![img1_35](https://github.com/user-attachments/assets/6bc40161-9378-4fef-a093-daaa4690465a)
 
+Для доступа к Grafana снаружи кластера Kubernetes буду использовать тип сервиса NodePort.
+
+Сохраним значения по умолчанию Helm чарта prometheus-community в файл и отредактируем его:
+
+helm show values prometheus-community/kube-prometheus-stack > helm-prometheus/values.yaml
+
+![img1_36](https://github.com/user-attachments/assets/cf0b1c51-a5ae-4645-a982-12fef8440e59)
+
+Изменю пароль по умолчанию Для входа в Grafana изменим пароль по умолчанию, а также изменим сервис и присвоим ему порт 30050:
+```
+grafana:
+  service:
+    portName: http-web
+    type: NodePort
+    nodePort: 30050
+```
+Используя Helm и подготовленный файл значений values.yaml выполню установку prometheus-community:
+
+helm upgrade --install monitoring prometheus-community/kube-prometheus-stack --create-namespace -n monitoring -f helm-prometheus/values.yaml
+
+![img1_39](https://github.com/user-attachments/assets/6f9dfea8-ee02-4f7f-8db8-fa790bca1003)
+
+При установке был создан отдельный Namespace с названием monitoring.
+
+Посмотрим результат установки:
+
+![img1_40](https://github.com/user-attachments/assets/01522c7e-12ea-4481-911a-338fd1206560)
+
+Установка была выполнена с заданными в values.yaml значениями.
+
+Файл значений values.yaml, использованный при установке prometheus-community доступен по ссылке: 
+https://github.com/slava1005/savilov-devops/blob/main/helm-prometheus/values.yaml
+
+Открою web-интерфейс Grafana:
+
+
+
+
+
+
+
 
 
 
