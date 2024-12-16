@@ -5,12 +5,12 @@ on:
     branches:
       - main
     paths:
-      - 'terraform/test/**'
+      - 'terraform/**'
   pull_request:
     branches:
       - main
     paths:
-      - 'terraform/test/**'
+      - 'terraform/**'
   workflow_dispatch:
     inputs:
       destroy:
