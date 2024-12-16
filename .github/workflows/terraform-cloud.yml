@@ -53,7 +53,7 @@ jobs:
 #          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     - name: Terraform State Push
-      run: terraform -chdir=./terraform state push -
+      run: terraform -chdir=./terraform state push ./terraform/terraform.tfstate
           
     - name: Terraform Format and Validate
       run: terraform -chdir=./terraform validate
