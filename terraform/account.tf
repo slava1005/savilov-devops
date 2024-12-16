@@ -31,7 +31,7 @@ resource "yandex_storage_bucket" "tf-bucket" {
 
 provisioner "local-exec" {
   command = "echo export ACCESS_KEY=${yandex_iam_service_account_static_access_key.terraform_service_account_key.access_k>}
-
+}
 provisioner "local-exec" {
   command = "echo export SECRET_KEY=${yandex_iam_service_account_static_access_key.terraform_service_account_key.secret_k>}
 }
