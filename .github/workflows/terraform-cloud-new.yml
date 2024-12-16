@@ -10,7 +10,7 @@ on:
     branches:
       - main
     paths:
-      - 'terraform//test**'
+      - 'terraform/test/**'
   workflow_dispatch:
     inputs:
       destroy:
