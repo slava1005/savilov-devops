@@ -48,7 +48,10 @@ jobs:
 
     - name: Terraform Init
       run: terraform -chdir=./terraform init
-
+      env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          
     - name: Terraform Format and Validate
       run: terraform -chdir=./terraform validate
       
