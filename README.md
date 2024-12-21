@@ -685,6 +685,43 @@ kubectl create ns gitlab-runner
 ```
 kubectl --namespace=gitlab-runner create secret generic runner-secret --from-literal=runner-registration-token="<token>" --from-literal=runner-token=""
 ```
+![img1_58](https://github.com/user-attachments/assets/8ad0a22f-0e7b-4589-a537-f5bfcc27d319)
+
+Также понадобится подготовить файл значений values.yaml, для того, чтобы указать в нем количество Runners, время проверки наличия новых задач, 
+настройка логирования, набор правил для доступа к ресурсам Kubernetes, ограничения на ресурсы процессора и памяти.
+
+Файл значений values.yaml, который будет использоваться при установке GitLab Runner доступен по ссылке: https://github.com/slava1005/savilov-devops/blob/main/helm-runner/values.yaml
+
+Приступаю к установке GitLab Runner. Устанавливать буду используя Helm:
+```
+helm repo add gitlab https://charts.gitlab.io
+```
+```
+helm install gitlab-runner gitlab/gitlab-runner -n gitlab-runner -f helm-runner/values.yaml
+```
+![img1_59_1](https://github.com/user-attachments/assets/2b4fe2a0-bdcf-4208-b17a-4782dc907f8a)
+
+![img1_59_2](https://github.com/user-attachments/assets/bfe783fa-dc4d-4bab-be84-f60d549e85f0)
+
+Проверю результат установки:
+
+![img1_60_1](https://github.com/user-attachments/assets/46fa3648-be4d-4b45-a1a0-5cfbed019ba0)
+
+GitLab Runner установлен и запущен. Также можно через web-интерфейс проверить, подключился ли GitLab Runner к GitLab репозиторию:
+
+![img1_61](https://github.com/user-attachments/assets/f23af1d7-493f-4cf4-818f-67f61f1190c1)
+
+Подключение GitLab Runner к репозиторию GitLab завершено.
+
+Для выполнения GitLab CI/CD Pipeline мне понадобится в настройках созданного проекта в разделе Variables указать переменные:
+
+![img1_62](https://github.com/user-attachments/assets/722fefdb-b42c-4200-b286-ca78fd77db06)
+
+
+
+
+
+
 
 
 
