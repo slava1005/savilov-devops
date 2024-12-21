@@ -357,7 +357,7 @@ Terraform успешно инициализирован, backend с типом s
 
 Применю код для создания облачной инфраструктуры, состоящей из одной Master ноды, двух Worker нод, сети и подсети:
 
-![img1_7](https://github.com/user-attachments/assets/df56b4d5-b022-4fbe-929f-862165bc845b)
+![img1_7_0](https://github.com/user-attachments/assets/a95f95bb-4f3b-4049-ac91-0d260fd39adb)
 
 Кроме создания сети, подсетей и виртуальных машин, создается ресурс из файла ansible.tf, который по шаблону hosts.tftpl создает inventory файл. 
 Этот inventory файл в дальнейшем будет использоваться для развёртывания Kubernetes кластера из репозитория Kubespray.
@@ -580,19 +580,111 @@ helm upgrade --install monitoring prometheus-community/kube-prometheus-stack --c
 Файл значений values.yaml, использованный при установке prometheus-community доступен по ссылке: 
 https://github.com/slava1005/savilov-devops/blob/main/helm-prometheus/values.yaml
 
-Открою web-интерфейс Grafana:
+Открою web-интерфейс Grafana и авторизуюсь с заранее заданным в values.yaml паролем::
 
+![img1_42](https://github.com/user-attachments/assets/fdcc1630-f05c-4390-976d-2e967e61725c)
 
+Авторизация проходит успешно, данные о состоянии кластера отображаются на дашбордах:
 
+![img1_43_1](https://github.com/user-attachments/assets/2f417119-7532-44da-96ad-d2fe9f545dd8)
 
+![img1_43](https://github.com/user-attachments/assets/c1b4582d-6c62-41fb-8e7a-7bbfbf7aeb37)
 
+Развёртывание системы мониторинга успешно завершено.
 
+Приступаю к развёртыванию тестового приложения на Kubernetes кластере.
 
+Создаю отдельный Namespace, в котором буду развёртывать тестовое приложение:
 
+![img1_44](https://github.com/user-attachments/assets/93357742-3a83-4486-928b-4c635a035c20)
 
+Пишем манифест Deployment с тестовым приложением:
 
+![img1_45](https://github.com/user-attachments/assets/9e985a1b-b8eb-4fb6-a9f3-dc60b71b0ecd)
 
+Применим манифест Deployment и проверим результат:
 
+![img1_46](https://github.com/user-attachments/assets/ba459fac-3931-42e3-b681-f2bc1d947640)
+
+Deployment создан и запущен. Проверю его работу:
+
+![img1_47](https://github.com/user-attachments/assets/f8c21ce4-37a6-43fe-863d-3c654b97b3fc)
+
+Приложение работает.
+
+Ссылка на манифест Deployment: https://github.com/slava1005/savilov-devops/blob/main/k8s-app/deployment.yaml
+
+Пишем манифест сервиса с типом NodePort для доступа к web-интерфейсу тестового приложения:
+
+![img1_48](https://github.com/user-attachments/assets/1602e291-4ed0-499e-9fb0-7d5d0e6706cc)
+
+Применяю манифест сервиса и проверяю результат:
+
+![img1_49](https://github.com/user-attachments/assets/ffa22c1d-b6a1-4944-9e80-09e6d19bf404)
+
+Сервис создан. Теперь проверю доступ к приложению извне:
+
+![img1_50](https://github.com/user-attachments/assets/581fa44f-2fad-4222-a1fa-43379be3c005)
+
+Сайт открывается, приложение доступно.
+
+Ссылка на манифест сервиса: https://github.com/slava1005/savilov-devops/blob/main/k8s-app/service.yaml
+
+Поскольку в манифесте Deployments я указал две реплики приложения для обеспечения его отказоустойчивости, мне потребуется балансировщик нагрузки.
+
+Пишу код Terraform для создания балансировщика нагрузки. Создается группа балансировщика нагрузки, которая будет использоваться для 
+балансировки нагрузки между экземплярами. Создается балансировщик с именем grafana, определяется слушатель на порту 3000, который 
+перенаправляет трафик на порт 30050 целевого узла, настраивается проверка работоспособности (healthcheck) на порту 30050. Также 
+создается балансировщик с именем web-app, определяется слушатель на порту 80, который перенаправляет трафик на порт 30051 целевого узла, 
+настраивается проверка работоспособности (healthcheck) на порту 30051.
+
+Ссылка на код Terraform балансировщика нагрузки: https://github.com/slava1005/savilov-devops/blob/main/terraform/load-balancer.tf
+
+После применения балансировщика нагрузки к облачной инфраструктуре Outputs выглядит следующим образом:
+
+![img1_51](https://github.com/user-attachments/assets/1134b524-ff25-4f2a-8fae-34ee1370f775)
+
+Проверю работу балансировщика нагрузки. Тестовое приложение будет открываться по порту 80, а Grafana будет открываться по порту 3000:
+
+Тестовое приложение:
+
+![img1_52](https://github.com/user-attachments/assets/f78da900-c363-46a8-8bda-f12a789d5568)
+
+Grafana:
+
+![img1_53](https://github.com/user-attachments/assets/e84df1bc-a897-4fe3-92fc-c73f97d644cc)
+
+Также видно, что в Grafana отобразился созданный Namespace и Deployment с подами.
+
+Развёртывание системы мониторинга и тестового приложения завершено.
+
+### Установка и настройка CI/CD
+
+Для организации процессов CI/CD буду использовать GitLab.
+
+Создаю в GitLab новый пустой проект с именем diplom-test-site.
+
+![img1_54](https://github.com/user-attachments/assets/c05e4433-34cc-45a2-8e4b-5fd03032cf87)
+
+Отправлю созданную ранее статичную страницу и Dockerfile из старого репозитория GitHub в новый проект на GitLab:
+
+![img1_56](https://github.com/user-attachments/assets/1cd1ec23-645f-4f7f-b27e-dfa51ce911e5)
+
+Для автоматизации процесса CI/CD мне нужен GitLab Runner, который будет выполнять задачи, указанные в файле .gitlab-ci.yml.
+
+На странице настроек проекта в разделе подключения GitLab Runner создаю Runner. Указанные на странице данные понадобятся 
+для регистрации и аутентификации Runner'а в проекте.
+
+![img1_57](https://github.com/user-attachments/assets/3df78238-5747-4fbf-88f4-7a7c600a2e04)
+
+Выполню подготовку Kubernetes кластера к установке GitLab Runner'а. Создам отдельный Namespace, в котором будет располагаться 
+GitLab Runner и создам Kubernetes secret, который будет использоваться для регистрации установленного в дальнейшем GitLab Runner:
+```
+kubectl create ns gitlab-runner
+```
+```
+kubectl --namespace=gitlab-runner create secret generic runner-secret --from-literal=runner-registration-token="<token>" --from-literal=runner-token=""
+```
 
 
 
